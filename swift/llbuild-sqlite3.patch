@@ -1,33 +1,36 @@
-From c020eeafde2dc408846af24bda4e8d676ad4dd69 Mon Sep 17 00:00:00 2001
-From: Bo Anderson <mail@boanderson.me>
-Date: Tue, 20 Feb 2024 17:55:37 +0000
-Subject: [PATCH] Workaround failing to find Homebrew sqlite3 on Linux
+From 950be099ad42529a98ef561f098bf5cc082c4dfe Mon Sep 17 00:00:00 2001
+From: Osama Albahrani <54853250+osalbahr@users.noreply.github.com>
+Date: Fri, 11 Jul 2025 00:28:39 +0300
+Subject: [PATCH] [PATCH] Update workaround failing to find Homebrew sqlite3 on
+ Linux
 
-Requires @@HOMEBREW_PREFIX@@ inreplace
+- For https://github.com/Homebrew/homebrew-core/pull/229223
 
+Co-Authored-By: Bo Anderson <mail@boanderson.me>
 ---
  Package.swift | 6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/Package.swift b/Package.swift
-index 0f559e94..46eb8a87 100644
+index 28ce8e24..167f249a 100644
 --- a/Package.swift
 +++ b/Package.swift
-@@ -238,12 +238,12 @@ package.targets.first { $0.name == "llbuildBasic" }?.linkerSettings = [
+@@ -335,12 +335,12 @@ package.targets.first { $0.name == "llbuildBasic" }?.linkerSettings = [
  // FIXME: when the SupportedPlatforms availability directive is updated and
  // the platform port is in sync with this directive, these conditions can
  // be folded up with .when(platforms:_) clauses.
--#if os(OpenBSD)
+-#if os(FreeBSD) || os(OpenBSD)
 +#if os(Linux)
- if let target = package.targets.first(where: { $0.name == "llbuildCore"}) {
--    target.cSettings = [.unsafeFlags(["-I/usr/local/include"])] 
-+    target.cSettings = [.unsafeFlags(["-I@@HOMEBREW_PREFIX@@/opt/sqlite3/include"])] 
-     target.linkerSettings = [
+ package.targets.filter({ $0.name == "llbuildCore" || $0.name == "llbuildCoreTests" }).forEach {
+-    $0.cSettings = [.unsafeFlags(["-I/usr/local/include"])]
++    $0.cSettings = [.unsafeFlags(["-I@@HOMEBREW_PREFIX@@/opt/sqlite3/include"])]
+     $0.linkerSettings = [
          .linkedLibrary("sqlite3"),
 -        .unsafeFlags(["-L/usr/local/lib"])
 +        .unsafeFlags(["-L@@HOMEBREW_PREFIX@@/opt/sqlite3/lib"])
      ]
+ 
  }
- #endif
 -- 
-2.39.3 (Apple Git-145)
+2.39.5 (Apple Git-154)
+
